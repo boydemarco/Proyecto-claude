@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Calendario de Mantención 2026 · Prototipo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f3f1ec; --paper:#fffdf9; --ink:#1d2329; --muted:#6b7177; --line:#dedad2; --accent:#d9480f;
+  --TTMM:#2f5597; --MMPP:#5b9bd5; --GUARELLO:#d4a017; --EYS:#e07b39; --BODEGAS:#5a9e2f; --LOCOMOTORAS:#7b6d8d; --SE:#a23b0b;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.4 'IBM Plex Sans',system-ui,sans-serif}
+header{background:var(--ink);color:#fff;padding:18px 24px 16px;display:flex;flex-wrap:wrap;align-items:flex-end;gap:12px 28px}
+header h1{margin:0;font-size:20px;font-weight:600;letter-spacing:.2px}
+header .sub{color:#aeb4ba;font-size:12.5px;margin-top:3px}
+.badge{font:500 11px 'IBM Plex Mono',monospace;background:var(--accent);color:#fff;padding:3px 7px;border-radius:3px;letter-spacing:.5px;vertical-align:middle;margin-left:8px}
+.wrap{max-width:1280px;margin:0 auto;padding:18px 20px 40px}
+.bar{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;margin-bottom:14px}
+.month-nav{display:flex;align-items:center;gap:6px}
+.month-nav button,.seg button{border:1px solid var(--line);background:var(--paper);color:var(--ink);font:inherit;padding:6px 11px;border-radius:6px;cursor:pointer}
+.month-nav button:hover,.seg button:hover{border-color:#b9b3a8}
+.month-nav .lbl{font-weight:600;font-size:17px;min-width:150px;text-align:center}
+.seg{display:flex}
+.seg button{border-radius:0;margin-left:-1px}
+.seg button:first-child{border-radius:6px 0 0 6px;margin-left:0}
+.seg button:last-child{border-radius:0 6px 6px 0}
+.seg button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{display:flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--paper);border-radius:20px;padding:4px 10px 4px 7px;cursor:pointer;font-size:12.5px;user-select:none}
+.chip i{width:11px;height:11px;border-radius:50%;display:block}
+.chip.off{opacity:.38}
+.chip b{font-weight:600;font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--muted)}
+input[type=search]{border:1px solid var(--line);background:var(--paper);border-radius:6px;padding:7px 10px;font:inherit;min-width:220px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-bottom:14px}
+.kpi{background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:11px 14px}
+.kpi .v{font-size:26px;font-weight:600;line-height:1.1}
+.kpi .k{color:var(--muted);font-size:12px;margin-top:2px}
+.grid{background:var(--paper);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.dow{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));background:#ebe7df;font-size:11.5px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.6px}
+.dow div{padding:7px 9px}
+.weeks{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
+.day{min-height:118px;border-top:1px solid var(--line);border-left:1px solid var(--line);padding:5px 5px 7px;position:relative}
+.day:nth-child(7n+1){border-left:none}
+.day.out{background:#f7f5f0}
+.day.out .n{color:#bdb7ad}
+.day.we{background:#faf8f3}
+.day.today{box-shadow:inset 0 0 0 2px var(--accent)}
+.day .n{font:500 12px 'IBM Plex Mono',monospace;color:var(--muted);margin:0 2px 4px;display:flex;justify-content:space-between}
+.day.today .n{color:var(--accent);font-weight:700}
+.wk{font-size:10px;color:#a7a196}
+.ev{display:block;font-size:11px;line-height:1.25;padding:2px 5px;margin-bottom:2px;border-radius:3px;color:#fff;white-space:nowrap;overflow:hidden;cursor:pointer;border-left:3px solid rgba(0,0,0,.25)}
+.ev.wrap{white-space:normal;overflow-wrap:anywhere}
+.ev.approx{background-image:repeating-linear-gradient(135deg,rgba(255,255,255,.18) 0 4px,transparent 4px 8px)}
+.ev.cont{border-left-color:transparent;opacity:.85}
+.more{font-size:11px;color:var(--muted);padding:1px 5px;cursor:pointer}
+.more:hover{color:var(--ink);text-decoration:underline}
+table{width:100%;border-collapse:collapse;background:var(--paper);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+th,td{text-align:left;padding:8px 11px;border-bottom:1px solid var(--line);font-size:13px;vertical-align:top}
+th{background:#ebe7df;font-size:11.5px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);cursor:pointer;white-space:nowrap}
+td.mono{font-family:'IBM Plex Mono',monospace;font-size:12px;white-space:nowrap}
+.tag{display:inline-block;color:#fff;font-size:11px;font-weight:600;padding:2px 7px;border-radius:3px;white-space:nowrap}
+.aprox{color:var(--accent);font-size:11px;margin-left:5px}
+.panel{position:fixed;inset:0;background:rgba(20,24,28,.45);display:none;align-items:center;justify-content:center;z-index:10;padding:20px}
+.panel.on{display:flex}
+.card{background:var(--paper);border-radius:10px;max-width:520px;width:100%;padding:18px 20px;max-height:80vh;overflow:auto}
+.card h3{margin:0 0 10px;font-size:16px}
+.card .row{display:flex;gap:10px;padding:7px 0;border-bottom:1px solid var(--line)}
+.card .row:last-child{border:none}
+.card .close{float:right;border:none;background:none;font-size:20px;cursor:pointer;color:var(--muted);line-height:1}
+.note{margin-top:18px;font-size:12px;color:var(--muted);display:flex;flex-wrap:wrap;gap:6px 22px}
+.note span i{display:inline-block;width:22px;height:10px;border-radius:2px;background:#888 repeating-linear-gradient(135deg,rgba(255,255,255,.3) 0 4px,transparent 4px 8px);vertical-align:middle;margin-right:5px}
+.empty{padding:40px;text-align:center;color:var(--muted)}
+.day.hol{background:#fdecea}
+.hol-name{display:block;font-size:10.5px;font-weight:600;color:#b42318;margin:0 2px 4px;line-height:1.2}
+h2{font-size:15px;margin:26px 0 10px;font-weight:600}
+tr.cur td{background:#fff4e6}
+td.irr{color:#b42318;font-weight:600;font-size:12px}
+.gantt{background:var(--paper);border:1px solid var(--line);border-radius:8px;overflow-x:auto}
+.g{display:grid;min-width:900px}
+.g .lab{position:sticky;left:0;background:var(--paper);z-index:2;padding:4px 10px;font-size:12px;border-bottom:1px solid #eeebe4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border-right:1px solid var(--line)}
+.g .ah{position:sticky;left:0;z-index:2;padding:6px 10px;font-size:11.5px;font-weight:700;color:#fff;letter-spacing:.4px;text-transform:uppercase}
+.g .ahf{border-bottom:1px solid var(--line)}
+.g .hd{font:500 10.5px 'IBM Plex Mono',monospace;color:var(--muted);text-align:center;padding:5px 0;background:#ebe7df;border-bottom:1px solid var(--line)}
+.g .hd.we,.g .c.we{background:#f4f1ea}
+.g .hd.hol,.g .c.hol{background:#fbe3e0}
+.g .hd.hol{color:#b42318;font-weight:700}
+.g .hd.today{background:var(--accent);color:#fff}
+.g .c{border-bottom:1px solid #eeebe4;border-left:1px solid #f1eee8}
+.g .bar{margin:4px 1px;height:16px;border-radius:3px;cursor:pointer;z-index:1}
+.g .bar.approx{background-image:repeating-linear-gradient(135deg,rgba(255,255,255,.25) 0 4px,transparent 4px 8px)}
+.g .corner{position:sticky;left:0;z-index:3;background:#ebe7df;border-bottom:1px solid var(--line);border-right:1px solid var(--line);font-size:11.5px;font-weight:600;color:var(--muted);padding:5px 10px;text-transform:uppercase;letter-spacing:.5px}
+@media (max-width:760px){
+  .day{min-height:76px}.ev{font-size:0;height:6px;padding:0;margin-bottom:2px}.ev::after{content:''}
+  .dow div{padding:6px 4px;font-size:10px}
+}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>Calendario de Mantención 2026 <span class="badge">PROTOTIPO</span></h1>
+    <div class="sub">Área Mantención · Fuente: Calendario SH01 Nov-2026 IBP11 Rev.0 · Prototipo para evaluar el formato</div>
+  </div>
+</header>
+<div class="wrap">
+  <div class="bar">
+    <div class="month-nav">
+      <button id="prev" aria-label="Mes anterior">◀</button>
+      <div class="lbl" id="mlabel"></div>
+      <button id="next" aria-label="Mes siguiente">▶</button>
+      <button id="hoy">Hoy</button>
+    </div>
+    <div class="seg" id="view">
+      <button data-v="cal" class="on">Calendario</button>
+      <button data-v="gantt">Carta Gantt</button>
+      <button data-v="list">Lista</button>
+    </div>
+    <input type="search" id="q" placeholder="Buscar actividad (ej. soda, TD3, grúa)…">
+  </div>
+  <div class="chips" id="chips" style="margin-bottom:14px"></div>
+  <div class="kpis" id="kpis"></div>
+  <div id="main"></div>
+  <h2 id="ferh">Feriados 2026</h2>
+  <div id="fer"></div>
+  <div class="note">
+    <span><i></i>Rayado = área asignada por color aproximado (revisar)</span>
+    <span><i style="background:#fbe3e0"></i>Rojo claro = feriado</span>
+    <span>Haz clic en un día o actividad para ver el detalle</span>
+    <span>El original no registra actividades entre enero y marzo 2026 ni la semana 03–09 ago</span>
+  </div>
+</div>
+<div class="panel" id="panel"><div class="card" id="card"></div></div>
+<script>
+const DATA=[["2026-04-06","2026-04-09","PREPARATIVO ESTRUCTURA C31","MMPP",0,"M"],["2026-04-06","2026-04-10","REP CANALETAS 205-206","BODEGAS",0,"M"],["2026-04-06","2026-04-10","REP CANALETAS GERENCIA","BODEGAS",0,"M"],["2026-04-06","2026-04-08","DESC CALIZA MN KARVUNA","TTMM",1,"N"],["2026-04-08","2026-04-08","REVISIÓN CAÑERÍA AGUA MUELLE","TTMM",1,"M"],["2026-04-09","2026-04-10","RUTA LINEA DE SODA","TTMM",1,"M"],["2026-04-10","2026-04-11","RUTA STOCK NORTE","MMPP",1,"M"],["2026-04-10","2026-04-10","REPARACIÓN TECHOS C-31","BODEGAS",0,"M"],["2026-04-10","2026-04-10","INSPECCIÓN MAMPAROS TD3","TTMM",1,"M"],["2026-04-12","2026-04-13","DESC SODA MN MONKINBIRD","TTMM",1,"N"],["2026-04-12","2026-04-12","EMBARQUE FLEXIBKLE MN ROCÍO","TTMM",1,"N"],["2026-04-13","2026-04-17","PREPARATIVO ESTRUCTURA C31","MMPP",0,"M"],["2026-04-13","2026-04-17","REP CANALETAS 205-206","BODEGAS",0,"M"],["2026-04-13","2026-04-15","REP CANALETAS GERENCIA","BODEGAS",0,"M"],["2026-04-14","2026-04-14","REVISIÓN THRUSTER TD3","TTMM",1,"M"],["2026-04-15","2026-04-15","CALIBRACIÓN ROMANA DINÁMICA","MMPP",0,"M"],["2026-04-15","2026-04-15","REP CAÑERÍA AGUA MUELLE","TTMM",1,"M"],["2026-04-16","2026-04-16","PRUEBA SISTEMA MECANIZADO","MMPP",0,"M"],["2026-04-16","2026-04-17","REP CANALETAS CONTROL 2","BODEGAS",0,"M"],["2026-04-16","2026-04-17","REPARACIÓN TECHOS C-31","BODEGAS",0,"M"],["2026-04-20","2026-04-24","PINTURA ESTRUCTURA C31","MMPP",0,"M"],["2026-04-20","2026-04-22","REP CANALETAS CONTROL 2","BODEGAS",0,"M"],["2026-04-20","2026-04-24","REPARACIÓN TECHOS TTMM","BODEGAS",0,"M"],["2026-04-20","2026-04-21","DESC CALIZA MN KARVUNA","TTMM",1,"N"],["2026-04-22","2026-04-23","RETIRO DE GAS BOMBONAS","EYS",1,"M"],["2026-04-22","2026-04-22","PRUEBA SISTEMA MECANIZADO","MMPP",0,"M"],["2026-04-22","2026-04-22","REVISIÓN CAÑERÍA AGUA MUELLE","TTMM",1,"M"],["2026-04-23","2026-04-23","MANTENCIÓN PLANTA DE LAVADO","MMPP",0,"M"],["2026-04-23","2026-04-25","DESC SODA MN CAIFU CHAO","TTMM",1,"N"],["2026-04-25","2026-04-28","DESC CALIZA MN PATAGONIA","TTMM",1,"N"],["2026-04-27","2026-04-28","PREPARATIVO MONTAJE ESTR C31","MMPP",0,"M"],["2026-04-29","2026-04-30","MONTAJE Y REPARACIÓN C31","MMPP",0,"M"],["2026-04-29","2026-05-01","DESC ACERO MN SENA FAITH","TTMM",1,"N"],["2026-04-29","2026-04-30","DESC SODA MN BOW PERFORMER","TTMM",1,"N"],["2026-05-02","2026-05-02","MANT PROG HARNERO MÓVIL (8H)","MMPP",0,"M"],["2026-05-02","2026-05-02","MANT PROG PLANTA DE LAVADO (8H)","MMPP",0,"M"],["2026-05-04","2026-05-09","REPARACIÓN ESTRUCTURAL GUARELLO","GUARELLO",1,"M"],["2026-05-04","2026-05-08","RETIRO CHIMENEA EX PCQ","LOCOMOTORAS",1,"M"],["2026-05-04","2026-05-08","MONTAJE Y REPARACIÓN C31","MMPP",0,"M"],["2026-05-04","2026-05-06","REPARACIÓN TECHOS TTMM","BODEGAS",0,"M"],["2026-05-06","2026-05-06","PRUEBA SISTEMA MECANIZADO","MMPP",0,"M"],["2026-05-07","2026-05-08","REPARACIÓN TECHOS EMISARIOS","BODEGAS",0,"M"],["2026-05-07","2026-05-09","DESC CALIZA MN KARVUNA","TTMM",1,"N"],["2026-05-09","2026-05-09","MANT PROG HARNERO MÓVIL (8H)","MMPP",0,"M"],["2026-05-09","2026-05-09","MANT PROG PLANTA DE LAVADO (8H)","MMPP",0,"M"],["2026-05-11","2026-05-16","REPARACIÓN ESTRUCTURAL GUARELLO","GUARELLO",1,"M"],["2026-05-11","2026-05-12","RETIRO CHIMENEA EX PCQ","LOCOMOTORAS",1,"M"],["2026-05-11","2026-05-15","MONTAJE Y REPARACIÓN C31","MMPP",0,"M"],["2026-05-11","2026-05-12","REPARACIÓN TECHOS EMISARIOS","BODEGAS",0,"M"],["2026-05-13","2026-05-13","PRUEBA SISTEMA MECANIZADO","MMPP",0,"M"],["2026-05-13","2026-05-15","DESC SUMINISTROS 242-243-244","BODEGAS",0,"N"],["2026-05-13","2026-05-15","REPARACIÓN TECHOS 201-202","BODEGAS",0,"M"],["2026-05-13","2026-05-15","REPARACIÓN TECHOS 240-244","BODEGAS",0,"M"],["2026-05-13","2026-05-14","DESC SODA MN BOW PERFORMER","TTMM",1,"N"],["2026-05-16","2026-05-16","MANT PROG HARNERO MÓVIL (8H)","MMPP",0,"M"],["2026-05-16","2026-05-16","MANT PROG PLANTA DE LAVADO (8H)","MMPP",0,"M"],["2026-05-18","2026-05-20","REPARACIÓN ESTRUCTURAL GUARELLO","GUARELLO",1,"M"],["2026-05-18","2026-05-19","MANT PROG LÍNEA DESCARGA (8H)","MMPP",0,"M"],["2026-05-18","2026-05-20","MONTAJE Y REPARACIÓN C31","MMPP",0,"M"],["2026-05-18","2026-05-20","REPARACIÓN TECHOS 201-202","BODEGAS",0,"M"],["2026-05-18","2026-05-20","REPARACIÓN TECHOS 240-244","BODEGAS",0,"M"],["2026-05-18","2026-05-25","EMBARQUE DE FINOS MN GOOFY","TTMM",1,"N"],["2026-05-20","2026-05-20","MANTENCIÓN PROGRAMADA TD3 (8H)","MMPP",0,"M"],["2026-05-22","2026-05-23","REPARACIÓN ESTRUCTURAL GUARELLO","GUARELLO",1,"M"],["2026-05-22","2026-05-22","MANTENCIÓN PROGRAMADA TD3 (8H)","MMPP",0,"M"],["2026-05-23","2026-05-23","MANT PROG HARNERO MÓVIL (8H)","MMPP",0,"M"],["2026-05-23","2026-05-23","MANT PROG PLANTA DE LAVADO (8H)","MMPP",0,"M"],["2026-05-25","2026-05-25","MANT LOCOMOTORA 822","LOCOMOTORAS",1,"M"],["2026-05-25","2026-05-29","REPARACIÓN TECHOS 201-202","BODEGAS",0,"M"],["2026-05-25","2026-05-29","REPARACIÓN TECHOS 240-244","BODEGAS",0,"M"],["2026-05-25","2026-05-29","REPARACIÓN TECHOS ROMANA CENTRAL","BODEGAS",0,"M"],["2026-05-26","2026-05-26","MANT LOCOMOTORA 832","LOCOMOTORAS",1,"M"],["2026-05-26","2026-05-28","DESC CALIZA MN KARVUNA","TTMM",1,"N"],["2026-05-27","2026-05-27","PRUEBA SISTEMA MECANIZADO","MMPP",0,"M"],["2026-05-28","2026-05-28","MANT PROG CHANCADOR SYMONS (8H)","MMPP",0,"M"],["2026-05-30","2026-05-30","MANT PROG HARNERO MÓVIL (8H)","MMPP",0,"M"],["2026-05-30","2026-05-30","MANT PROG PLANTA DE LAVADO (8H)","MMPP",0,"M"],["2026-05-31","2026-06-02","DESC CALIZA MN KARVUNA","TTMM",1,"N"],["2026-06-03","2026-06-03","PRUEBA SISTEMA MECANIZADO","MMPP",0,"M"],["2026-06-10","2026-06-10","PRUEBA SISTEMA MECANIZADO","MMPP",0,"M"],["2026-06-17","2026-06-17","PRUEBA SISTEMA MECANIZADO","MMPP",0,"M"],["2026-06-24","2026-06-24","PRUEBA SISTEMA MECANIZADO","MMPP",0,"M"],["2026-06-30","2026-06-30","MANT PREV LOCOMOTORAS 822-832","LOCOMOTORAS",1,"M"],["2026-06-30","2026-07-03","HABILITACIÓN CHANCADOR 2","MMPP",0,"M"],["2026-06-30","2026-07-03","REPARACIÓN TECHOS BODEGA 243","BODEGAS",0,"M"],["2026-06-30","2026-07-03","REPARACIÓN TECHOS OFICINAS","BODEGAS",0,"M"],["2026-07-01","2026-07-02","DESCARGA ACERO MN DRACO FAITH","TTMM",1,"N"],["2026-07-02","2026-07-02","MANTENCIÓN PREV CH.SYMONS","MMPP",0,"M"],["2026-07-03","2026-07-03","DESCARGA SODA MN SPARROW HAWK","TTMM",1,"N"],["2026-07-03","2026-07-03","PRUEBA NIVELACIÓN FONDO MARINO","TTMM",1,"M"],["2026-07-06","2026-07-10","HABILITACIÓN CHANCADOR 2","MMPP",0,"M"],["2026-07-06","2026-07-10","REPARACIÓN TECHOS BODEGA 243","BODEGAS",0,"M"],["2026-07-06","2026-07-10","REPARACIÓN TECHOS OFICINAS","BODEGAS",0,"M"],["2026-07-06","2026-07-07","DESCARGA SODA MN GINGA PRESTIGE","TTMM",1,"N"],["2026-07-07","2026-07-07","MANT PREV LOCOMOTORAS 822-832","LOCOMOTORAS",1,"M"],["2026-07-08","2026-07-09","DESCARGA SODA MN XENA","TTMM",1,"N"],["2026-07-09","2026-07-09","MANTENCIÓN PREV PLANTA DE LAVADO","MMPP",0,"M"],["2026-07-13","2026-07-15","HABILITACIÓN CHANCADOR 2","MMPP",0,"M"],["2026-07-13","2026-07-15","REPARACIÓN TECHOS BODEGA 243","BODEGAS",0,"M"],["2026-07-13","2026-07-15","REPARACIÓN TECHOS OFICINAS","BODEGAS",0,"M"],["2026-07-14","2026-07-14","MANT PREV LOCOMOTORAS 822-832","LOCOMOTORAS",1,"M"],["2026-07-15","2026-07-15","MANT PREV HARNERO KLEEMAN","MMPP",0,"M"],["2026-07-15","2026-07-15","MANTENCIÓN GRÚA CLEVELAND 216","BODEGAS",0,"M"],["2026-07-15","2026-07-17","EMBARQUE PLATE IRON","TTMM",1,"N"],["2026-07-17","2026-07-17","HABILITACIÓN CHANCADOR 2","MMPP",0,"M"],["2026-07-17","2026-07-17","REPARACIÓN TECHOS BODEGA 243","BODEGAS",0,"M"],["2026-07-17","2026-07-17","REPARACIÓN TECHOS OFICINAS","BODEGAS",0,"M"],["2026-07-20","2026-07-24","HABILITACIÓN CHANCADOR 2","MMPP",0,"M"],["2026-07-20","2026-07-24","REPARACIÓN TECHOS BODEGA 243","BODEGAS",0,"M"],["2026-07-21","2026-07-21","MANT PREV LOCOMOTORAS 822-832","LOCOMOTORAS",1,"M"],["2026-07-22","2026-07-22","MANTENCIÓN SISTEMA DE SODA ÁREA 550","EYS",0,"M"],["2026-07-27","2026-07-27","MANTENCIÓN PLANTA DE AGUA","EYS",0,"M"],["2026-07-27","2026-07-31","HABILITACIÓN CHANCADOR 2","MMPP",0,"M"],["2026-07-27","2026-07-31","REPARACIÓN TECHOS BODEGA 243","BODEGAS",0,"M"],["2026-07-28","2026-07-28","MANTENCIÓN CERRO ESTANQUE","EYS",0,"M"],["2026-07-28","2026-07-28","MANT PREV LOCOMOTORAS 822-832","LOCOMOTORAS",1,"M"],["2026-07-29","2026-07-29","MANTENCIÓN BOCATOMA","EYS",0,"M"],["2026-07-30","2026-07-30","MANTENCIÓN SISTEMA DE SODA TTMM","EYS",0,"M"],["2026-08-10","2026-08-14","HABILITACIÓN CHANCADOR 2","MMPP",0,"M"],["2026-08-11","2026-08-11","MANT PREV LOCOMOTORAS 822-832","LOCOMOTORAS",1,"M"],["2026-08-17","2026-08-21","HABILITACIÓN CHANCADOR 2","MMPP",0,"M"],["2026-08-17","2026-08-19","MANTENCIÓN GRÚA 201 MYRE","BODEGAS",0,"M"],["2026-08-18","2026-08-18","MANT PREV LOCOMOTORAS 822-832","LOCOMOTORAS",1,"M"],["2026-08-20","2026-08-21","MANTENCIÓN GRÚA 240","BODEGAS",0,"M"],["2026-08-21","2026-08-21","REPARACIÓN TRANSP CORREA 31","TTMM",1,"M"],["2026-08-22","2026-08-22","NORMALIZACIÓN LAS1-LAS2","BODEGAS",0,"M"],["2026-08-24","2026-08-28","HABILITACIÓN CHANCADOR 2","MMPP",0,"M"],["2026-08-24","2026-08-28","MANTENCIÓN GRÚA 240","BODEGAS",0,"M"],["2026-08-24","2026-08-28","REPARACIÓN TRANSP CORREA 31","TTMM",1,"M"],["2026-08-25","2026-08-25","MANT PREV LOCOMOTORAS 822-832","LOCOMOTORAS",1,"M"],["2026-08-26","2026-08-26","MANTENCIÓN PREV CH.SYMONS","MMPP",0,"M"],["2026-09-07","2026-09-07","MANT PREV LOCOMOTORAS 822-824-832","LOCOMOTORAS",1,"M"],["2026-09-07","2026-09-11","MANTENCIÓN GRÚA 240S","BODEGAS",0,"M"],["2026-09-09","2026-09-11","MANTENCIÓN SIST AGUAS","EYS",0,"M"],["2026-09-09","2026-09-11","CAMBIO CERCHAS B186","BODEGAS",0,"M"],["2026-09-09","2026-09-11","REPARACIÓN ESTRUCTURAL TD3 FASE 3","TTMM",1,"M"],["2026-09-09","2026-09-11","REPARACIÓN TRANSP CORREA 31","TTMM",1,"M"],["2026-09-10","2026-09-10","MANTENCIÓN HARNERO KLEEMAN","MMPP",0,"M"],["2026-09-10","2026-09-10","MANTENCIÓN STK 34","MMPP",0,"M"],["2026-09-14","2026-09-17","MANTENCIÓN SIST AGUAS","EYS",0,"M"],["2026-09-14","2026-09-17","CAMBIO CERCHAS B186","BODEGAS",0,"M"],["2026-09-14","2026-09-14","MANTENCIÓN PUENTE GRUA BOCATOMA","BODEGAS",0,"M"],["2026-09-15","2026-09-15","MANT PREV LOCOMOTORAS 822-824-832","LOCOMOTORAS",1,"M"],["2026-09-15","2026-09-15","MANTENCIÓN PUENTE 216 KONCRANE","BODEGAS",0,"M"],["2026-09-21","2026-09-25","MANTENCIÓN SIST AGUAS","EYS",0,"M"],["2026-09-21","2026-09-21","MANTENCIÓN SISTEMA SODA ÁREA 550","EYS",0,"M"],["2026-09-21","2026-09-25","CAMBIO CERCHAS B186","BODEGAS",0,"M"],["2026-09-21","2026-09-25","REPARACIÓN ESTRUCTURAL TD3 FASE 3","TTMM",1,"M"],["2026-09-21","2026-09-25","REPARACIÓN TRANSP CORREA 31","TTMM",1,"M"],["2026-09-22","2026-09-22","MANTENCIÓN SISTEMA DE SODA TTMM","EYS",0,"M"],["2026-09-23","2026-09-23","MANT PREV LOCOMOTORAS 822-824-832","LOCOMOTORAS",1,"M"],["2026-09-28","2026-10-02","MANTENCIÓN SIST AGUAS","EYS",0,"M"],["2026-09-28","2026-10-02","CAMBIO CERCHAS B186","BODEGAS",0,"M"],["2026-09-28","2026-10-02","REPARACIÓN ESTRUCTURAL TD3 FASE 3","TTMM",1,"M"],["2026-09-28","2026-10-02","REPARACIÓN TRANSP CORREA 31","TTMM",1,"M"],["2026-09-29","2026-09-29","MANT PREV LOCOMOTORAS 822-824-832","LOCOMOTORAS",1,"M"],["2026-09-29","2026-09-29","MANTENCIÓN PREV CH.SYMONS","MMPP",0,"M"],["2026-09-30","2026-09-30","SIMULACRO CORTE EE MUELLE","SISTEMA ELÉCTRICO",1,"M"],["2026-10-01","2026-10-01","MANTENCIÓN PREV PLANTA DE LAVADO","MMPP",0,"M"],["2026-10-03","2026-10-03","INTERVENCIÓN ELECTRICA LAS 1-LAS 2","SISTEMA ELÉCTRICO",1,"M"],["2026-10-05","2026-10-09","MANTENCIÓN SIST AGUAS","EYS",0,"M"],["2026-10-05","2026-10-05","MANTENCIÓN SISTEMA SODA ÁREA 550","EYS",0,"M"],["2026-10-05","2026-10-09","MANT PROG GRÚA CLEVELAND 216","BODEGAS",0,"M"],["2026-10-05","2026-10-09","REPARACIÓN ESTRUCTURAL TD3 FASE 3","TTMM",1,"M"],["2026-10-05","2026-10-09","REPARACIÓN TRANSP CORREA 31","TTMM",1,"M"],["2026-10-06","2026-10-06","MANTENCIÓN SISTEMA DE SODA TTMM","EYS",0,"M"],["2026-10-06","2026-10-06","MANT PREV LOCOMOTORAS 822-824-832","LOCOMOTORAS",1,"M"],["2026-10-07","2026-10-09","CAMBIO CERCHAS B186","BODEGAS",0,"M"],["2026-10-08","2026-10-08","MANTENCIÓN PROG HARNERO KLEEMAN","MMPP",0,"M"],["2026-10-13","2026-10-16","MANTENCIÓN SIST AGUAS","EYS",0,"M"],["2026-10-13","2026-10-13","MANT PREV LOCOMOTORAS 822-824-832","LOCOMOTORAS",1,"M"],["2026-10-13","2026-10-16","CAMBIO CERCHAS B186","BODEGAS",0,"M"],["2026-10-13","2026-10-16","REPARACIÓN ESTRUCTURAL TD3 FASE 3","TTMM",1,"M"],["2026-10-13","2026-10-16","REPARACIÓN TRANSP CORREA 31","TTMM",1,"M"],["2026-10-14","2026-10-14","MANTENCIÓN PROGRAMADA TD3","TTMM",1,"M"],["2026-10-15","2026-10-15","MANTENCIÓN PROG PLANTA CHANCADO","MMPP",0,"M"],["2026-10-19","2026-10-20","DILUCIÓN CONCENTRACIÓN SODA","EYS",0,"M"],["2026-10-19","2026-10-23","MANTENCIÓN SIST AGUAS","EYS",0,"M"],["2026-10-19","2026-10-23","CAMBIO CERCHAS B186","BODEGAS",0,"M"],["2026-10-19","2026-10-23","REPARACIÓN ESTRUCTURAL TD3 FASE 3","TTMM",1,"M"],["2026-10-19","2026-10-23","REPARACIÓN TRANSP CORREA 31","TTMM",1,"M"],["2026-10-20","2026-10-20","MANT PREV LOCOMOTORAS 822-824-832","LOCOMOTORAS",1,"M"],["2026-10-21","2026-10-23","PRUEBA HIDRÁULICA LINEA SODA","EYS",0,"M"],["2026-10-21","2026-10-21","MANTENCIÓN PREV CH.SYMONS","MMPP",0,"M"],["2026-10-22","2026-10-22","MANTENCIÓN PROG STK 34","MMPP",0,"M"],["2026-10-24","2026-10-24","ENTREGA LINEA SODA POST PH","EYS",0,"M"],["2026-10-26","2026-10-30","CAMBIO CERCHAS B186","BODEGAS",0,"M"],["2026-10-26","2026-10-30","REPARACIÓN ESTRUCTURAL TD3 FASE 3","TTMM",1,"M"],["2026-10-26","2026-10-30","REPARACIÓN TRANSP CORREA 31","TTMM",1,"M"],["2026-10-27","2026-10-27","MANT PREV LOCOMOTORAS 822-824-832","LOCOMOTORAS",1,"M"],["2026-10-29","2026-10-30","LEVANTAMIENTO TRANSP L NORTE","MMPP",0,"M"],["2026-10-29","2026-10-29","MANTENCIÓN PROG PLANTA DE LAVADO","MMPP",0,"M"],["2026-11-02","2026-11-03","LEVANTAMIENTO TRANSP L NORTE","MMPP",0,"M"],["2026-11-02","2026-11-06","CAMBIO CERCHAS B186","BODEGAS",0,"M"],["2026-11-02","2026-11-06","REPARACIÓN ESTRUCTURAL TD3 FASE 3","TTMM",1,"M"],["2026-11-02","2026-11-06","REPARACIÓN TRANSP CORREA 31","TTMM",1,"M"],["2026-11-03","2026-11-03","MANT PREV LOCOMOTORAS 822-824-832","LOCOMOTORAS",1,"M"],["2026-11-05","2026-11-05","MANTENCIÓN PROG STK 34","MMPP",0,"M"],["2026-11-09","2026-11-09","MANTENCIÓN SISTEMA SODA ÁREA 550","EYS",0,"M"],["2026-11-09","2026-11-13","CAMBIO CERCHAS B186","BODEGAS",0,"M"],["2026-11-09","2026-11-13","REPARACIÓN ESTRUCTURAL TD3 FASE 3","TTMM",1,"M"],["2026-11-09","2026-11-13","REPARACIÓN TRANSP CORREA 31","TTMM",1,"M"],["2026-11-10","2026-11-10","MANTENCIÓN SISTEMA DE SODA TTMM","EYS",0,"M"],["2026-11-10","2026-11-10","MANT PREV LOCOMOTORAS 822-824-832","LOCOMOTORAS",1,"M"],["2026-11-11","2026-11-11","MANTENCIÓN PREV CH.SYMONS","MMPP",0,"M"],["2026-11-12","2026-11-12","MANT PROG PLANTA CHANCADO 2","MMPP",0,"M"],["2026-11-14","2026-11-14","INTERVENCIÓN ELECTRICA LAS 1-LAS 2","SISTEMA ELÉCTRICO",1,"M"],["2026-11-16","2026-11-20","CAMBIO CERCHAS B186","BODEGAS",0,"M"],["2026-11-16","2026-11-17","MANTENCIÓN PROGRAMADA TD3","TTMM",1,"M"],["2026-11-16","2026-11-20","REPARACIÓN ESTRUCTURAL TD3 FASE 3","TTMM",1,"M"],["2026-11-16","2026-11-20","REPARACIÓN TRANSP CORREA 31","TTMM",1,"M"],["2026-11-17","2026-11-17","MANT PREV LOCOMOTORAS 822-824-832","LOCOMOTORAS",1,"M"],["2026-11-18","2026-11-18","MANTENCIÓN PROG PLANTA DE LAVADO","MMPP",0,"M"],["2026-11-19","2026-11-20","MANTENIMIENTO TRANSP L NORTE","MMPP",0,"M"],["2026-11-23","2026-11-24","MANTENIMIENTO TRANSP CALIZA","MMPP",0,"M"],["2026-11-23","2026-11-27","MANTENIMIENTO TRANSP L NORTE","MMPP",0,"M"],["2026-11-23","2026-11-27","CAMBIO CERCHAS B186","BODEGAS",0,"M"],["2026-11-23","2026-11-27","REPARACIÓN ESTRUCTURAL TD3 FASE 3","TTMM",1,"M"],["2026-11-23","2026-11-27","REPARACIÓN TRANSP CORREA 31","TTMM",1,"M"],["2026-11-24","2026-11-24","MANT PREV LOCOMOTORAS 822-824-832","LOCOMOTORAS",1,"M"],["2026-11-25","2026-11-27","MANTENCIÓN SIST AGUAS","EYS",0,"M"],["2026-11-30","2026-12-04","CAMBIO CERCHAS B186","BODEGAS",0,"M"],["2026-11-30","2026-12-04","REPARACIÓN ESTRUCTURAL TD3 FASE 3","TTMM",1,"M"],["2026-11-30","2026-12-04","REPARACIÓN TRANSP CORREA 31","TTMM",1,"M"],["2026-12-07","2026-12-11","CAMBIO CERCHAS B186","BODEGAS",0,"M"],["2026-12-07","2026-12-11","REPARACIÓN ESTRUCTURAL TD3 FASE 3","TTMM",1,"M"],["2026-12-07","2026-12-11","REPARACIÓN TRANSP CORREA 31","TTMM",1,"M"],["2026-12-14","2026-12-18","CAMBIO CERCHAS B186","BODEGAS",0,"M"],["2026-12-14","2026-12-18","REPARACIÓN ESTRUCTURAL TD3 FASE 3","TTMM",1,"M"],["2026-12-14","2026-12-18","REPARACIÓN TRANSP CORREA 31","TTMM",1,"M"],["2026-12-21","2026-12-25","CAMBIO CERCHAS B186","BODEGAS",0,"M"],["2026-12-21","2026-12-25","REPARACIÓN ESTRUCTURAL TD3 FASE 3","TTMM",1,"M"],["2026-12-21","2026-12-25","REPARACIÓN TRANSP CORREA 31","TTMM",1,"M"]];
+const FER=[["2026-01-01", "Año Nuevo", true], ["2026-04-03", "Viernes Santo", false], ["2026-04-04", "Sábado Santo", false], ["2026-05-01", "Día Nacional del Trabajo", true], ["2026-05-21", "Día de las Glorias Navales", false], ["2026-06-21", "Día Nacional de los Pueblos Indígenas", false], ["2026-06-29", "San Pedro y San Pablo", false], ["2026-07-16", "Día de la Virgen del Carmen", false], ["2026-08-15", "Asunción de la Virgen", false], ["2026-09-18", "Independencia Nacional", true], ["2026-09-19", "Día de las Glorias del Ejército", true], ["2026-10-12", "Encuentro de Dos Mundos", false], ["2026-10-31", "Día de las Iglesias Evangélicas y Protestantes", false], ["2026-11-01", "Día de Todos los Santos", false], ["2026-12-08", "Inmaculada Concepción", false], ["2026-12-25", "Navidad", true]];
+const FERMAP=Object.fromEntries(FER.map(f=>[f[0],f]));
+const AREAS={TTMM:['TTMM','var(--TTMM)'],MMPP:['MMPP','var(--MMPP)'],GUARELLO:['Guarello','var(--GUARELLO)'],EYS:['EyS','var(--EYS)'],BODEGAS:['Bodegas','var(--BODEGAS)'],LOCOMOTORAS:['Locomotoras','var(--LOCOMOTORAS)'],'SISTEMA ELÉCTRICO':['Sist. eléctrico','var(--SE)']};
+const MES=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+const DIAS=['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
+const ev=DATA.map((d,i)=>({id:i,ini:d[0],fin:d[1],txt:d[2],area:d[3],exact:d[4]===1,tipo:d[5]}));
+const st={y:2026,m:new Date().getFullYear()===2026?new Date().getMonth():3,view:'cal',q:'',off:new Set()};
+try{const s=JSON.parse(localStorage.getItem('calmant')||'{}');if(s.view)st.view=s.view;if(s.off)st.off=new Set(s.off);}catch(e){}
+const iso=d=>d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+const fmt=s=>{const[y,m,d]=s.split('-');return d+'-'+m;};
+const todayIso=iso(new Date());
+function isoWeek(d){const t=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));const n=t.getUTCDay()||7;t.setUTCDate(t.getUTCDate()+4-n);const y=new Date(Date.UTC(t.getUTCFullYear(),0,1));return Math.ceil(((t-y)/864e5+1)/7);}
+function filt(){const q=st.q.trim().toLowerCase();return ev.filter(e=>!st.off.has(e.area)&&(!q||e.txt.toLowerCase().includes(q)));}
+function save(){try{localStorage.setItem('calmant',JSON.stringify({view:st.view,off:[...st.off]}));}catch(e){}}
+function chips(){
+  const mStart=iso(new Date(st.y,st.m,1)),mEnd=iso(new Date(st.y,st.m+1,0));
+  const cnt={};ev.forEach(e=>{if(e.fin>=mStart&&e.ini<=mEnd)cnt[e.area]=(cnt[e.area]||0)+1;});
+  document.getElementById('chips').innerHTML=Object.entries(AREAS).map(([k,[n,c]])=>`<div class="chip ${st.off.has(k)?'off':''}" data-a="${k}"><i style="background:${c}"></i>${n}<b>${cnt[k]||0}</b></div>`).join('');
+}
+function kpis(list){
+  const mStart=iso(new Date(st.y,st.m,1)),mEnd=iso(new Date(st.y,st.m+1,0));
+  const inM=list.filter(e=>e.fin>=mStart&&e.ini<=mEnd);
+  const now=new Date();const dw=(now.getDay()+6)%7;const ws=new Date(now);ws.setDate(now.getDate()-dw);const we=new Date(ws);we.setDate(ws.getDate()+6);
+  const inW=list.filter(e=>e.fin>=iso(ws)&&e.ini<=iso(we));
+  const apr=inM.filter(e=>!e.exact).length;
+  document.getElementById('kpis').innerHTML=[
+    [inM.length,'Actividades en '+MES[st.m]],
+    [inW.length,'Actividades esta semana (sem '+isoWeek(now)+')'],
+    [apr,'Con área por revisar en el mes'],
+    [FER.filter(f=>f[0]>=mStart&&f[0]<=mEnd).length,'Feriados en '+MES[st.m]]
+  ].map(([v,k])=>`<div class="kpi"><div class="v">${v}</div><div class="k">${k}</div></div>`).join('');
+}
+function cal(list){
+  const first=new Date(st.y,st.m,1,12);const start=new Date(first);start.setDate(1-((first.getDay()+6)%7));
+  const last=new Date(st.y,st.m+1,0,12);const end=new Date(last);end.setDate(last.getDate()+(6-((last.getDay()+6)%7)));
+  let html='<div class="grid"><div class="dow">'+DIAS.map(d=>`<div>${d}</div>`).join('')+'</div><div class="weeks">';
+  for(let d=new Date(start);iso(d)<=iso(end);d.setDate(d.getDate()+1)){
+    const s=iso(d);const dow=(d.getDay()+6)%7;
+    const evs=list.filter(e=>e.ini<=s&&e.fin>=s).sort((a,b)=>a.area.localeCompare(b.area)||a.txt.localeCompare(b.txt));
+    const fh=FERMAP[s];const cls=['day',d.getMonth()!==st.m?'out':'',dow>4?'we':'',fh?'hol':'',s===todayIso?'today':''].join(' ');
+    const shown=evs.slice(0,4);
+    html+=`<div class="${cls}" data-d="${s}"><div class="n"><span>${d.getDate()}</span>${dow===0?`<span class="wk">S${isoWeek(d)}</span>`:''}</div>`+(fh?`<span class="hol-name">${fh[1]}${fh[2]?' (irrenunciable)':''}</span>`:'')+
+      shown.map(e=>`<span class="ev ${e.exact?'':'approx'} ${e.ini<s&&dow!==0?'cont':''}" data-e="${e.id}" style="background:${AREAS[e.area][1]}" title="${e.txt}">${e.txt}</span>`).join('')+
+      (evs.length>4?`<div class="more" data-d="${s}">+${evs.length-4} más</div>`:'')+'</div>';
+  }
+  return html+'</div></div>';
+}
+function lst(list){
+  const mStart=iso(new Date(st.y,st.m,1)),mEnd=iso(new Date(st.y,st.m+1,0));
+  const inM=list.filter(e=>e.fin>=mStart&&e.ini<=mEnd).sort((a,b)=>a.ini.localeCompare(b.ini)||a.area.localeCompare(b.area));
+  if(!inM.length)return '<div class="empty">Sin actividades para este mes con los filtros actuales.</div>';
+  return '<table><thead><tr><th>Inicio</th><th>Fin</th><th>Días</th><th>Actividad</th><th>Área</th></tr></thead><tbody>'+
+   inM.map(e=>{const dd=(new Date(e.fin)-new Date(e.ini))/864e5+1;return `<tr><td class="mono">${fmt(e.ini)}</td><td class="mono">${fmt(e.fin)}</td><td class="mono">${dd}</td><td>${e.txt}</td><td><span class="tag" style="background:${AREAS[e.area][1]}">${AREAS[e.area][0]}</span>${e.exact?'':'<span class="aprox">revisar</span>'}</td></tr>`;}).join('')+'</tbody></table>';
+}
+function gantt(list){
+  const n=new Date(st.y,st.m+1,0).getDate();const mStart=iso(new Date(st.y,st.m,1)),mEnd=iso(new Date(st.y,st.m,n));
+  const inM=list.filter(e=>e.fin>=mStart&&e.ini<=mEnd);
+  if(!inM.length)return '<div class="empty">Sin actividades para este mes con los filtros actuales.</div>';
+  const cols=`grid-template-columns:230px repeat(${n},minmax(22px,1fr))`;
+  let h=`<div class="gantt"><div class="g" style="${cols}"><div class="corner">Actividad</div>`;
+  const dayInfo=[];
+  for(let i=1;i<=n;i++){const d=new Date(st.y,st.m,i);const s=iso(d);const dw=(d.getDay()+6)%7;
+    const c=[dw>4?'we':'',FERMAP[s]?'hol':'',s===todayIso?'today':''].join(' ');dayInfo.push(c);
+    h+=`<div class="hd ${c}" title="${DIAS[dw]} ${i}${FERMAP[s]?' · '+FERMAP[s][1]:''}">${i}<br>${DIAS[dw][0]}</div>`;}
+  let row=2;
+  for(const a of Object.keys(AREAS)){
+    const es=inM.filter(e=>e.area===a).sort((x,y)=>x.ini.localeCompare(y.ini)||x.txt.localeCompare(y.txt));
+    if(!es.length)continue;
+    const grp={};es.forEach(e=>(grp[e.txt]=grp[e.txt]||[]).push(e));
+    h+=`<div class="ah" style="grid-row:${row};grid-column:1;background:${AREAS[a][1]}">${AREAS[a][0]} · ${Object.keys(grp).length}</div><div class="ahf" style="grid-row:${row};grid-column:2/span ${n};background:${AREAS[a][1]};opacity:.12"></div>`;row++;
+    for(const [txt,segs] of Object.entries(grp)){
+      h+=`<div class="lab" style="grid-row:${row};grid-column:1" title="${txt}">${txt}</div>`;
+      for(let i=1;i<=n;i++)h+=`<div class="c ${dayInfo[i-1]}" style="grid-row:${row};grid-column:${i+1}"></div>`;
+      for(const e of segs){
+        const s=e.ini<mStart?1:+e.ini.slice(8),f=e.fin>mEnd?n:+e.fin.slice(8);
+        h+=`<div class="bar ${e.exact?'':'approx'}" data-e="${e.id}" title="${e.txt} (${fmt(e.ini)} → ${fmt(e.fin)})" style="grid-row:${row};grid-column:${s+1}/${f+2};background:${AREAS[e.area][1]}"></div>`;
+      }
+      row++;
+    }
+  }
+  return h+'</div></div>';
+}
+function ferTable(){
+  const mm=String(st.m+1).padStart(2,'0');
+  document.getElementById('fer').innerHTML='<table><thead><tr><th>Fecha</th><th>Día</th><th>Feriado</th><th>Tipo</th><th>Actividades ese día</th></tr></thead><tbody>'+
+   FER.map(f=>{const d=new Date(f[0]+'T12:00');const k=filt().filter(e=>e.ini<=f[0]&&e.fin>=f[0]).length;
+    return `<tr class="${f[0].slice(5,7)===mm?'cur':''}"><td class="mono">${fmt(f[0])}</td><td>${['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'][d.getDay()]}</td><td>${f[1]}</td><td class="${f[2]?'irr':''}">${f[2]?'Irrenunciable':'Nacional'}</td><td class="mono">${k||'—'}</td></tr>`;}).join('')+'</tbody></table>';
+}
+function render(){
+  document.getElementById('mlabel').textContent=MES[st.m]+' '+st.y;
+  document.querySelectorAll('#view button').forEach(b=>b.classList.toggle('on',b.dataset.v===st.view));
+  const list=filt();chips();kpis(list);
+  document.getElementById('main').innerHTML=st.view==='cal'?cal(list):st.view==='gantt'?gantt(list):lst(list);
+  ferTable();
+  fit();
+}
+// Abreviaturas: se aplican de a una, solo mientras el texto no quepa en una línea
+const ABR=[[/\bMANTENCI[OÓ]N\b|\bMANTENIMIENTO\b/g,'MANT'],[/\bPROGRAMADA\b|\bPROGRAMADO\b/g,'PROG'],[/\bPREVENTIVA\b/g,'PREV'],
+ [/\bREPARACI[OÓ]N\b/g,'REP'],[/\bESTRUCTURAL\b/g,'ESTRUCT'],[/\bSISTEMA\b/g,'SIST'],[/\bLEVANTAMIENTO\b/g,'LEVANT'],
+ [/\bHABILITACI[OÓ]N\b/g,'HABILIT'],[/\bINSPECCI[OÓ]N\b/g,'INSP'],[/\bLOCOMOTORAS?\b/g,'LOCOM'],[/\bDESCARGA\b/g,'DESC'],
+ [/\bTRANSPORTADORA?\b/g,'TRANSP'],[/\bINTERVENCI[OÓ]N\b/g,'INTERV'],[/\bEL[EÉ]CTRICA\b/g,'ELÉC'],[/\bCHANCADOR\b/g,'CHANC'],
+ [/\bPREPARATIVOS?\b/g,'PREP'],[/\bCALIBRACI[OÓ]N\b/g,'CALIB'],[/\bNORMALIZACI[OÓ]N\b/g,'NORMALIZ'],[/\bCERTIFICACI[OÓ]N\b/g,'CERTIF'],
+ [/\bPLANTA\b/g,'PTA'],[/\bESTRUCTURA\b/g,'ESTRUCT'],[/\bDE\b /g,''],[/ \bDEL?\b/g,'']];
+function fit(){
+  document.querySelectorAll('.ev').forEach(el=>{
+    const full=ev[+el.dataset.e].txt;let t=full;
+    el.classList.remove('wrap');el.textContent=t;
+    for(const[re,r] of ABR){
+      if(el.scrollWidth<=el.clientWidth+1)break;
+      const n=t.replace(re,r).replace(/\s{2,}/g,' ').trim();
+      if(n!==t){t=n;el.textContent=t;}
+    }
+    if(el.scrollWidth>el.clientWidth+1)el.classList.add('wrap');
+  });
+}
+let rz;window.addEventListener('resize',()=>{clearTimeout(rz);rz=setTimeout(fit,120);});
+function detail(title,items){
+  document.getElementById('card').innerHTML=`<button class="close" aria-label="Cerrar">×</button><h3>${title}</h3>`+
+   (items.length?items.map(e=>`<div class="row"><span class="tag" style="background:${AREAS[e.area][1]};align-self:flex-start">${AREAS[e.area][0]}</span><div><div style="font-weight:500">${e.txt}</div><div style="color:var(--muted);font-size:12px">${fmt(e.ini)} → ${fmt(e.fin)}${e.exact?'':' · <span style="color:var(--accent)">área por revisar</span>'}</div></div></div>`).join(''):'<div style="color:var(--muted)">Sin actividades.</div>');
+  document.getElementById('panel').classList.add('on');
+}
+document.addEventListener('click',ev2=>{
+  const t=ev2.target;
+  if(t.id==='prev'){if(st.m>0)st.m--;render();}
+  else if(t.id==='next'){if(st.m<11)st.m++;render();}
+  else if(t.id==='hoy'){const n=new Date();if(n.getFullYear()===2026)st.m=n.getMonth();render();}
+  else if(t.closest('#view button')){st.view=t.closest('button').dataset.v;save();render();}
+  else if(t.closest('.chip')){const a=t.closest('.chip').dataset.a;st.off.has(a)?st.off.delete(a):st.off.add(a);save();render();}
+  else if(t.closest('.ev')||t.closest('.bar')){const e=ev[+(t.closest('.ev')||t.closest('.bar')).dataset.e];detail(e.txt,[e]);}
+  else if(t.closest('.day')||t.classList.contains('more')){const s=(t.closest('.day')||t).dataset.d;const[y,m,d]=s.split('-');detail(`${DIAS[(new Date(s+'T12:00').getDay()+6)%7]} ${+d} de ${MES[+m-1].toLowerCase()}`,filt().filter(e=>e.ini<=s&&e.fin>=s));}
+  else if(t.classList.contains('close')||t.id==='panel'){document.getElementById('panel').classList.remove('on');}
+});
+document.getElementById('q').addEventListener('input',e=>{st.q=e.target.value;render();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')document.getElementById('panel').classList.remove('on');});
+render();
+</script>
+</body>
+</html>
